@@ -80,23 +80,45 @@ Snake::Snake(int x, int y)
 	snakePositions.push_back({ x + 50, y });
 }
 
+void Snake::Extend()
+{
+	needToExtend = true;
+}
+
 void Snake::MoveSnake(int keyboard)
 {
 	Point temp = snakePositions[0];
 	Point newPosition = determineNewPosition(temp, keyboard);
+	Point extensionPoint;
 	for (int i = 0; i < snakePositions.size(); i++)
 	{
 		snakePositions[i].Update(newPosition);
 		newPosition = temp;
 		if(i != snakePositions.size() - 1)
 			temp = snakePositions[i + 1];
+		if (needToExtend && (i == snakePositions.size() - 1))
+		{
+			extensionPoint = snakePositions[i];
+			
+		}
+	}
+	if (needToExtend)
+	{
+		snakePositions.push_back(extensionPoint);
+		needToExtend = false;
 	}
 }
 
-void Snake::DrawSnake(HDC hdc)
+void Snake::DrawSnake(HDC hdc) const
 {
 	for (int i = 0; i < snakePositions.size(); i++)
 	{
 		Rectangle(hdc, snakePositions[i].x, snakePositions[i].y, snakePositions[i].x + 25, snakePositions[i].y + 25);
 	}
+}
+
+Point Snake::HeadPosition() const
+{
+	Point headPosition = snakePositions[0];
+	return headPosition;
 }
