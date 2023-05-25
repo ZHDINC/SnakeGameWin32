@@ -85,28 +85,41 @@ void Snake::Extend()
 	needToExtend = true;
 }
 
-void Snake::MoveSnake(int keyboard)
+bool Snake::MoveSnake(int keyboard)
 {
+	if (collision) return collision;
 	Point temp = snakePositions[0];
 	Point newPosition = determineNewPosition(temp, keyboard);
-	Point extensionPoint;
-	for (int i = 0; i < snakePositions.size(); i++)
+	for (Point p : snakePositions)
 	{
-		snakePositions[i].Update(newPosition);
-		newPosition = temp;
-		if(i != snakePositions.size() - 1)
-			temp = snakePositions[i + 1];
-		if (needToExtend && (i == snakePositions.size() - 1))
+		if (newPosition.x == p.x && newPosition.y == p.y)
 		{
-			extensionPoint = snakePositions[i];
-			
+			collision = true;
+			return collision;
 		}
 	}
-	if (needToExtend)
+	if (!collision)
 	{
-		snakePositions.push_back(extensionPoint);
-		needToExtend = false;
+		Point extensionPoint;
+		for (int i = 0; i < snakePositions.size(); i++)
+		{
+			snakePositions[i].Update(newPosition);
+			newPosition = temp;
+			if (i != snakePositions.size() - 1)
+				temp = snakePositions[i + 1];
+			if (needToExtend && (i == snakePositions.size() - 1))
+			{
+				extensionPoint = snakePositions[i];
+
+			}
+		}
+		if (needToExtend)
+		{
+			snakePositions.push_back(extensionPoint);
+			needToExtend = false;
+		}
 	}
+	return collision;
 }
 
 void Snake::DrawSnake(HDC hdc) const

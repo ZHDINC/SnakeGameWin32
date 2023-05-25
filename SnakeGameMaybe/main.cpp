@@ -5,6 +5,8 @@
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 constexpr int ITERATION = 1000;
+constexpr int windowWidth = 900;
+constexpr int windowHeight = 550;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
@@ -23,7 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	RegisterClass(&wndclass);
 
-	HWND hwnd = CreateWindow(wndclass.lpszClassName, L"Snake", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, hInstance, nullptr);
+	HWND hwnd = CreateWindow(wndclass.lpszClassName, L"Snake", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr, hInstance, nullptr);
 	SetTimer(hwnd, ITERATION, 250, nullptr);
 	ShowWindow(hwnd, iCmdShow);
 	UpdateWindow(hwnd);
@@ -36,6 +38,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	return msg.wParam;
 }
 
+bool boundaryGameOver(const Snake& snake)
+{
+	Point headPosition = snake.HeadPosition();
+	if (headPosition.x < 0 || headPosition.x > windowWidth)
+	{
+		return true;
+	}
+	if (headPosition.y < 0 || headPosition.y > windowHeight)
+	{
+		return true;
+	}
+	return false;
+}
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	static Snake snake(300, 300);
@@ -44,6 +60,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 	HPEN hpen;
 	HDC hdc;
 	PAINTSTRUCT ps;
+	static bool gameoverstate = false;
+	std::wstring gameovertext = L"Game Over YEAHHHHHHHHHH";
 	switch (message)
 	{
 	case WM_CREATE:
@@ -56,24 +74,40 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 		SelectObject(hdc, hpen);
 		apple.Draw(hdc);
 		SelectObject(hdc, GetStockObject(BLACK_PEN));
+		if (gameoverstate)
+		{
+			TextOut(hdc, 300, 300, gameovertext.c_str(), gameovertext.length());
+		}
 		EndPaint(hwnd, &ps);
 		DeleteObject(hpen);
 		return 0;
 	case WM_KEYDOWN:
 		if (canMove)
 		{
-			snake.MoveSnake(wparam);
+			gameoverstate = snake.MoveSnake(wparam);
+			if (!gameoverstate)
+			{
+				gameoverstate = boundaryGameOver(snake);
+			}
 			canMove = false;
 		}
 		return 0;
 	case WM_TIMER:
+		if (gameoverstate)
+		{
+			KillTimer(hwnd, ITERATION);
+		}
 		if (!canMove)
 		{
 			canMove = true;
 		}
 		else
 		{
-			snake.MoveSnake(0);
+			gameoverstate = snake.MoveSnake(0);
+			if (!gameoverstate)
+			{
+				gameoverstate = boundaryGameOver(snake);
+			}
 		}
 		if (snake.HeadPosition().x == apple.GetApplePosition().x && snake.HeadPosition().y == apple.GetApplePosition().y)
 		{

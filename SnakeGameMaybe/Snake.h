@@ -17,10 +17,11 @@ class Snake
 	FacingDirection currentFacingDirection = FacingDirection::LEFT;
 	Point determineNewPosition(Point oldPoint, int keyboard);
 	bool needToExtend = false;
+	bool collision = false;
 public:
 	Snake(int x, int y);
 	void Extend();
-	void MoveSnake(int keyboard);
+	bool MoveSnake(int keyboard);
 	void DrawSnake(HDC hdc) const;
 	Point HeadPosition() const;
 };
