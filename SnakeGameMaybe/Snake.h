@@ -21,8 +21,8 @@ class Snake
 public:
 	Snake(int x, int y);
 	void Extend();
-	bool MoveSnake(int keyboard);
-	void DrawSnake(HDC hdc) const;
+	bool Move(int keyboard);
+	void Draw(HDC hdc) const;
 	std::vector<Point> GetSnakePositions() const;
 	Point HeadPosition() const;
 };

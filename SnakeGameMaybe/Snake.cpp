@@ -85,7 +85,7 @@ void Snake::Extend()
 	needToExtend = true;
 }
 
-bool Snake::MoveSnake(int keyboard)
+bool Snake::Move(int keyboard)
 {
 	if (collision) return collision;
 	Point temp = snakePositions[0];
@@ -122,7 +122,7 @@ bool Snake::MoveSnake(int keyboard)
 	return collision;
 }
 
-void Snake::DrawSnake(HDC hdc) const
+void Snake::Draw(HDC hdc) const
 {
 	for (int i = 0; i < snakePositions.size(); i++)
 	{

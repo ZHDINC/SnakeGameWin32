@@ -21,7 +21,7 @@ public:
 
 	}
 
-	Point GetApplePosition() const
+	Point GetPosition() const
 	{
 		return Point{ x, y };
 	}

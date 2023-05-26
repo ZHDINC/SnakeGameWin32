@@ -2,6 +2,7 @@
 #include"Snake.h"
 #include"Apple.h"
 #include"Point.h"
+#include<random>
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 constexpr int ITERATION = 1000;
@@ -54,7 +55,7 @@ bool boundaryGameOver(const Snake& snake)
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
-	static Snake snake(300, 300);
+	static Snake snake(0,0);
 	static Apple apple;
 	static bool canMove = true;
 	HPEN hpen;
@@ -65,11 +66,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 	switch (message)
 	{
 	case WM_CREATE:
+	{
+		std::random_device rd;
+		std::mt19937 rng(rd());
+		std::uniform_int_distribution<> xdistribution(10, 30);
+		std::uniform_int_distribution<> ydistribution(5, 15);
+		snake = Snake{ xdistribution(rng) * 25, ydistribution(rng) * 25 };
 		apple.Update(snake);
 		return 0;
+	}
 	case WM_PAINT:
 		hdc = BeginPaint(hwnd, &ps);
-		snake.DrawSnake(hdc);
+		snake.Draw(hdc);
 		hpen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
 		SelectObject(hdc, hpen);
 		apple.Draw(hdc);
@@ -84,7 +92,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 	case WM_KEYDOWN:
 		if (canMove)
 		{
-			gameoverstate = snake.MoveSnake(wparam);
+			gameoverstate = snake.Move(wparam);
 			if (!gameoverstate)
 			{
 				gameoverstate = boundaryGameOver(snake);
@@ -103,13 +111,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 		}
 		else
 		{
-			gameoverstate = snake.MoveSnake(0);
+			gameoverstate = snake.Move(0);
 			if (!gameoverstate)
 			{
 				gameoverstate = boundaryGameOver(snake);
 			}
 		}
-		if (snake.HeadPosition().x == apple.GetApplePosition().x && snake.HeadPosition().y == apple.GetApplePosition().y)
+		if (snake.HeadPosition().x == apple.GetPosition().x && snake.HeadPosition().y == apple.GetPosition().y)
 		{
 			snake.Extend();
 			apple.Update(snake);
