@@ -65,7 +65,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 	switch (message)
 	{
 	case WM_CREATE:
-		apple.Update();
+		apple.Update(snake);
 		return 0;
 	case WM_PAINT:
 		hdc = BeginPaint(hwnd, &ps);
@@ -112,7 +112,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 		if (snake.HeadPosition().x == apple.GetApplePosition().x && snake.HeadPosition().y == apple.GetApplePosition().y)
 		{
 			snake.Extend();
-			apple.Update();
+			apple.Update(snake);
 		}
 		InvalidateRect(hwnd, NULL, TRUE);
 		return 0;

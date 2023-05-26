@@ -130,6 +130,11 @@ void Snake::DrawSnake(HDC hdc) const
 	}
 }
 
+std::vector<Point> Snake::GetSnakePositions() const
+{
+	return snakePositions;
+}
+
 Point Snake::HeadPosition() const
 {
 	Point headPosition = snakePositions[0];

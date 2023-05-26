@@ -23,5 +23,6 @@ public:
 	void Extend();
 	bool MoveSnake(int keyboard);
 	void DrawSnake(HDC hdc) const;
+	std::vector<Point> GetSnakePositions() const;
 	Point HeadPosition() const;
 };

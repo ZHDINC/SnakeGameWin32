@@ -2,6 +2,7 @@
 #include<Windows.h>
 #include<random>
 #include"Point.h"
+#include"Snake.h"
 
 class Apple
 {
@@ -25,10 +26,17 @@ public:
 		return Point{ x, y };
 	}
 
-	void Update()
+	void Update(const Snake& snake)
 	{
 		x = xdistribution(rng) * 25;
 		y = ydistribution(rng) * 25;
+		for (Point p : snake.GetSnakePositions())
+		{
+			if (p.x == x && p.y == y)
+			{
+				Update(snake);
+			}
+		}
 	}
 	void Draw(HDC hdc)
 	{
