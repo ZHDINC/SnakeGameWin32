@@ -21,7 +21,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	wndclass.lpszMenuName = nullptr;
 	wndclass.cbClsExtra = 0;
 	wndclass.cbWndExtra = 0;
-	wndclass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wndclass.style = CS_HREDRAW | CS_VREDRAW;
 
 	RegisterClass(&wndclass);
@@ -57,8 +57,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	static Snake snake(0,0);
 	static Apple apple;
+	static int eatenAppleCount = 0;
+	static int speed = 250;
 	static bool canMove = true;
 	HPEN hpen;
+	HBRUSH hbrush;
 	HDC hdc;
 	PAINTSTRUCT ps;
 	static bool gameoverstate = false;
@@ -77,17 +80,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 	}
 	case WM_PAINT:
 		hdc = BeginPaint(hwnd, &ps);
+		hpen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
+		hbrush = CreateSolidBrush(RGB(0, 255, 0));
+		SelectObject(hdc, hpen);
+		SelectObject(hdc, hbrush);
 		snake.Draw(hdc);
 		hpen = CreatePen(PS_SOLID, 2, RGB(255, 0, 0));
+		hbrush = CreateSolidBrush(RGB(255, 0, 0));
 		SelectObject(hdc, hpen);
+		SelectObject(hdc, hbrush);
 		apple.Draw(hdc);
 		SelectObject(hdc, GetStockObject(BLACK_PEN));
+		SelectObject(hdc, GetStockObject(WHITE_BRUSH));
 		if (gameoverstate)
 		{
 			TextOut(hdc, 300, 300, gameovertext.c_str(), gameovertext.length());
 		}
 		EndPaint(hwnd, &ps);
 		DeleteObject(hpen);
+		DeleteObject(hbrush);
 		return 0;
 	case WM_KEYDOWN:
 		if (canMove)
@@ -99,6 +110,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 			}
 			canMove = false;
 		}
+		return 0;
+	case WM_KILLFOCUS:
+		KillTimer(hwnd, ITERATION);
+		return 0;
+	case WM_SETFOCUS:
+		SetTimer(hwnd, ITERATION, speed, nullptr);
 		return 0;
 	case WM_TIMER:
 		if (gameoverstate)
@@ -121,6 +138,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 		{
 			snake.Extend();
 			apple.Update(snake);
+			eatenAppleCount++;
+			if (eatenAppleCount % 5 == 0)
+			{
+				speed = 250 - eatenAppleCount;
+				if (speed < 50)
+				{
+					speed = 50;
+				}
+				SetTimer(hwnd, ITERATION, speed, nullptr);
+			}
 		}
 		InvalidateRect(hwnd, NULL, TRUE);
 		return 0;

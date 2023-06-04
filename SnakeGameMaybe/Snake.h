@@ -3,7 +3,7 @@
 #include<Windows.h>
 #include"Point.h"
 
-enum FacingDirection
+enum class FacingDirection
 {
 	LEFT,
 	UP,
